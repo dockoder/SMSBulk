@@ -1,0 +1,4 @@
+#Sat Aug 31 00:54:45 WEST 2019
+base.0=/home/doc/AndroidStudioProjects/massSMS/app/build/intermediates/transforms/dexMerger/debug/3
+path.0=classes.dex
+renamed.0=classes.dex
