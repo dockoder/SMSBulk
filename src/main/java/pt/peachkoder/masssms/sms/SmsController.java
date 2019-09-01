@@ -4,6 +4,8 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
+import android.os.Handler;
+import android.os.SystemClock;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
@@ -12,6 +14,8 @@ import android.telephony.SmsManager;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.locks.ReentrantLock;
 
 import pt.peachkoder.masssms.R;
 import pt.peachkoder.masssms.listview.ListViewItemDTO;
@@ -26,11 +30,21 @@ public class SmsController {
 
     private Activity activity;
 
+    private SmsManager smsManager ;
+
     private List<Recipient> recipientsSMSNotSent = new ArrayList<>();
 
     private static  SmsController instance ;
 
     private static final long serialVersionUID = 123456789L;
+
+    private int msgPerMinute = 1;
+
+    private ReentrantLock lock = new ReentrantLock();
+
+    private Handler customHandler = new Handler();
+
+    private final AtomicBoolean running = new AtomicBoolean(false);
 
     // Bill Pugh singleton Pattern --------------------------------------------------------
     private SmsController() {
@@ -41,6 +55,8 @@ public class SmsController {
             throw new IllegalStateException("Singleton already initialized");
 
         }
+
+        smsManager = SmsManager.getDefault();
     }
 
     // avoid multithreading overehead
@@ -96,30 +112,30 @@ public class SmsController {
 
         if (!isValidPhoneNumber(number)) return;
 
-        recipientsSMSNotSent.clear();
-
+        lock.lock();
         try {
 
-            SmsManager smsManager = SmsManager.getDefault();
-
-            smsManager.sendTextMessage(
-                    number,
-                    null,
-                    smsBody,
-                    null,
-                    null
-            );
+            smsManager.sendTextMessage( number,null,smsBody,null,null);
 
         } catch (Exception e) {
 
             recipientsSMSNotSent.add(new Recipient(number, e.getMessage()));
 
+        } finally {
+
+            lock.unlock();
         }
 
     }
 
 
-    public void broadcast(List<ListViewItemDTO> list, String msg) {
+    public void broadcast(List<ListViewItemDTO> list, String msg, int freq) {
+
+        msgPerMinute = freq;
+
+        recipientsSMSNotSent.clear();
+
+        customHandler.postDelayed(senderThread, 0);
 
         Iterator<ListViewItemDTO> it = list.iterator();
 
@@ -128,7 +144,50 @@ public class SmsController {
             send(it.next().getNumber(), msg);
 
         }
+
+
     }
+
+    public void stop(){
+
+        customHandler.removeCallbacks(senderThread);
+    }
+
+
+
+    private Runnable senderThread = new Runnable() {
+        long startTime = SystemClock.elapsedRealtime();
+        int interval = 60000 / msgPerMinute;
+
+        @Override
+        public void run() {
+
+            running.set(true);
+
+            while (running.get()){
+
+                try {
+
+                    long endTime = SystemClock.elapsedRealtime();
+
+                    if(endTime-startTime >= interval){
+
+                    }
+
+                } catch (Exception ignored){
+
+
+                } finally {
+
+                    Thread.currentThread().interrupt();
+
+                }
+
+            }
+
+        }
+    };
+
 
     private static boolean isValidPhoneNumber(String phoneNumber) {
 
@@ -175,6 +234,8 @@ public class SmsController {
         return activity;
     }
 
+
+    public AtomicBoolean getRunning() { return running; }
 }
 
 

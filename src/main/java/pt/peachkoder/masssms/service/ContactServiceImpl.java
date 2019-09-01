@@ -3,37 +3,37 @@ package pt.peachkoder.masssms.service;
 import android.content.Context;
 import java.util.List;
 import pt.peachkoder.masssms.persistence.dto.ContactDTO;
-import pt.peachkoder.masssms.persistence.dao.ContactDao;
+import pt.peachkoder.masssms.persistence.dao.ContactDaoImpl;
 
 // ContactService implementation.
 // Used to handle database access through a level of abstraction
 public class ContactServiceImpl implements ContactService {
 
-    private Context ctx;
 
-    private ContactDao contactDao;
+    private ContactDaoImpl contactDao;
 
     public ContactServiceImpl(Context ctx) {
 
-        this.ctx = ctx;
-
-        this.contactDao = new ContactDao(ctx);
+        this.contactDao = new ContactDaoImpl(ctx);
     }
 
     @Override
-    public List<ContactDTO> getContactList() {
+    public List<ContactDTO> getList() {
         return contactDao.getAll();
-
     }
 
     @Override
-    public ContactDTO getContact(int id) {
+    public ContactDTO get(int id) {
         return contactDao.get(id);
     }
 
     @Override
-    public void setContact(ContactDTO contact) {
-        contactDao.save(contact);
+    public ContactDTO get(String id) {
+        return null;
+    }
 
+    @Override
+    public void set(ContactDTO t) {
+        contactDao.save(t);
     }
 }

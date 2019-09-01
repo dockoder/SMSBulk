@@ -60,16 +60,34 @@
     </string-array>
 
     <string-array name="list_preference_entries">
-        <item>Entry 1</item>
-        <item>Entry 2</item>
-        <item>Entry 3</item>
+        <item>Max_SMS</item>
+        <item>Enable_Schedule</item>
+        <item>Start_Time</item>
+        <item>End_Time</item>
+        <item>Frequency</item>
     </string-array>
 
     <string-array name="list_preference_entry_values">
-        <item>1</item>
-        <item>2</item>
-        <item>3</item>
+        <item>max_sms</item>
+        <item>enable_schedule</item>
+        <item>start_time</item>
+        <item>end_time</item>
+        <item>freq_per_minute</item>
     </string-array>
+
+    <string name="pref_max_sms">max_sms</string>
+    <string name="pref_enable_schedule">enable_schedule</string>
+    <string name="pref_start_time">start_time</string>
+    <string name="pref_end_time">end_time</string>
+    <string name="pref_freq_per_minute">freq_per_minute</string>
+
+    <string name="msg_warning_max_length">Text over 160 chars will be parted in many messages.\nWhich message costs 1 SMS credit</string>
+
+
+    <string name="msg_sending_sms">SMS sending in progress!</string>
+    <string name="msg_empty">Message empty.</string>
+    <string name="msg_sending_sms_frequency_warning">"To get frequency higher than 1, the device must be rooted!"</string>
+
 
     <string-array name="multi_select_list_preference_default_value" />
 

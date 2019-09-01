@@ -13,6 +13,9 @@ public class ContactDTO {
     // Contact belong group fields.
     private long groupId;
 
+    // Group title
+    private String groupTitle;
+
     // Contacts id.
     private int contactId;
 
@@ -292,6 +295,14 @@ public class ContactDTO {
 
     public void setPhotoFieldId(String photoFieldId) {
         this.photoFieldId = photoFieldId;
+    }
+
+    public String getGroupTitle() {
+        return groupTitle;
+    }
+
+    public void setGroupTitle(String groupTitle) {
+        this.groupTitle = groupTitle;
     }
 }
 

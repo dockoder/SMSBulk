@@ -173,13 +173,11 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             addPreferencesFromResource(R.xml.pref_general);
             setHasOptionsMenu(true);
 
-            // Bind the summaries of EditText/List/Dialog/Ringtone preferences
-            // to their values. When their values change, their summaries are
-            // updated to reflect the new value, per the Android Design
-            // guidelines.
-            bindPreferenceSummaryToValue(findPreference("start_time"));
-            bindPreferenceSummaryToValue(findPreference("end_time"));
-            bindPreferenceSummaryToValue(findPreference("example_list"));
+            bindPreferenceSummaryToValue(findPreference(getString(R.string.pref_max_sms)));
+            bindPreferenceSummaryToValue(findPreference(getString(R.string.pref_enable_schedule)));
+            bindPreferenceSummaryToValue(findPreference(getString(R.string.pref_start_time)));
+            bindPreferenceSummaryToValue(findPreference(getString(R.string.pref_end_time)));
+            bindPreferenceSummaryToValue(findPreference(getString(R.string.pref_freq_per_minute)));
         }
 
         @Override

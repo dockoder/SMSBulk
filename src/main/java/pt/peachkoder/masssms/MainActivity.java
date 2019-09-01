@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.view.View;
@@ -18,6 +19,7 @@ import android.view.MenuItem;
 import android.widget.AdapterView;
 import android.widget.CheckBox;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -36,6 +38,10 @@ public class MainActivity extends AppCompatActivity
 
     private Map<String, String> preferences = new HashMap();
 
+    private SmsController sms;
+
+    private String message;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -43,12 +49,19 @@ public class MainActivity extends AppCompatActivity
 
         init();
 
-        SmsController sms = SmsController.getInstance();
+        sms = SmsController.getInstance();
         sms.setActivity(this);
         //Ask for permission -> Android version 6+
         if(!sms.hasPermission()) {
             sms.showRequestPermissionsInfoAlertDialog();
         }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        message = data.getStringExtra("message");
     }
 
     private void init(){
@@ -145,7 +158,6 @@ public class MainActivity extends AppCompatActivity
 
         Set<Map.Entry<String, String>> set = map.entrySet();
         Iterator it = set.iterator();
-
         List<ListViewItemDTO> ret = new ArrayList<>();
 
         while (it.hasNext()){
@@ -168,12 +180,21 @@ public class MainActivity extends AppCompatActivity
         SharedPreferences sharedPreferences =
                 PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 
-        preferences.put("max_sms", sharedPreferences.getString("max_sms", "0"));
-        preferences.put("enable_schedule",  sharedPreferences.getString("enable_schedule", "0"));
-        preferences.put("start_time",  sharedPreferences.getString("start_time", "21:00"));
-        preferences.put("end_time",  sharedPreferences.getString("end_time", "7:00"));
+        String max = getString(R.string.pref_max_sms);
+        String enable = getString(R.string.pref_enable_schedule);
+        String start = getString(R.string.pref_start_time);
+        String end = getString(R.string.pref_end_time);
+        String freq = getString(R.string.pref_freq_per_minute);
+
+        preferences.put(max, sharedPreferences.getString(max, "0"));
+        preferences.put(enable,  sharedPreferences.getString(enable, "0"));
+        preferences.put(start,  sharedPreferences.getString(start, "21:00"));
+        preferences.put(end,  sharedPreferences.getString(end, "7:00"));
+        preferences.put(freq,  sharedPreferences.getString(freq, "1"));
 
     }
+
+
 
     @Override
     public void onBackPressed() {
@@ -214,7 +235,10 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_message) {
-            // Handle the camera action
+
+            startActivity(new Intent(MainActivity.this, MessageActivity.class) );
+
+
         } else if (id == R.id.nav_groups) {
 
         } else if (id == R.id.nav_send) {
@@ -225,12 +249,47 @@ public class MainActivity extends AppCompatActivity
 
         } else if (id == R.id.nav_view) {
 
-        } else if (id == R.id.nav_send) {
-
-        }
+        } else if (id == R.id.nav_send) { send(); }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    private void send(){
+
+        if (message.isEmpty()){
+
+            Toast.makeText(getBaseContext(),
+                    getString(R.string.msg_empty),
+                    Toast.LENGTH_LONG).show();
+            return ;
+
+        }
+
+        if (sms.getRunning().get()){
+
+            Toast.makeText(getBaseContext(),
+                    getString(R.string.msg_sending_sms),
+                    Toast.LENGTH_LONG).show();
+            return ;
+
+        }
+
+        int freq = Integer.parseInt( preferences.get(getString(R.string.pref_freq_per_minute)));
+
+        if (freq<=1){
+
+            freq = 1;
+
+        } else {
+
+            Toast.makeText(getBaseContext(),
+                    getString(R.string.msg_sending_sms_frequency_warning),
+                    Toast.LENGTH_LONG).show();
+        }
+
+        sms.broadcast(null, message, freq);
+
     }
 }
